@@ -86,6 +86,10 @@ flutter:
      - family: inter
        fonts:
          - asset: assets/fonts/Inter_18pt-Black.ttf
+         - asset: assets/fonts/Inter_28pt-Light.ttf
+           weight: 400
+         - asset: assets/fonts/Inter_18pt-Medium.ttf
+           weight: 500
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:

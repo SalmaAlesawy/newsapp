@@ -6,6 +6,7 @@ import 'package:newsapp/models/sourceDataModel.dart';
 
 import '../Network Handler/Network_Handler.dart';
 import '../core/themes/ColorPalette.dart';
+import 'CustomBottomSheet.dart';
 
 class Selectedcategorywidget extends StatefulWidget {
   const Selectedcategorywidget({super.key, required this.categoryDataModel});
@@ -37,12 +38,16 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
                 indicatorColor: ColorPalette.black,
-                labelColor: ColorPalette.black,
-                labelStyle: textTheme.titleMedium,
-                unselectedLabelStyle: textTheme.titleSmall,
                 tabs: List.generate(
                   sourceList.length,
-                  (index) => Tab(child: Text(sourceList[index].name)),
+                  (index) => Tab(
+                    child: Text(
+                      sourceList[index].name,
+                      style:selectedIndex!=index?textTheme.titleSmall: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -64,51 +69,64 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
                     child: ListView.separated(
                       itemBuilder: (context, index) {
                         print(" image: ${articleList[index].urlToImage}");
-                        return Container(
-                          margin: EdgeInsets.all(8),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadiusGeometry.circular(16),
-                            border: Border.all(color: ColorPalette.black),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadiusGeometry.circular(
-                                    12,
-                                  ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: articleList[index].urlToImage,
-                                    placeholder: (context, url) =>
-                                    SizedBox(
-                                      height: 200,
-                                      width: 200,
-                                      child: CircularProgressIndicator(),),
-                                    errorWidget: (context, url, error) =>
-                                       SizedBox(height:200,width:200,child: Icon(Icons.error),)
-                                  ),
-                                ),
-                                Text(
-                                  articleList[index].title,
-                                  style: textTheme.titleMedium,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      articleList[index].sourceName,
-                                      style: textTheme.bodySmall,
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              _showBottomSheet(context, articleList[index]);
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.all(8),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadiusGeometry.circular(16),
+                              border: Border.all(color: ColorPalette.black),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadiusGeometry.circular(
+                                      12,
                                     ),
-                                    Text(
-                                      articleList[index].publishedAt,
-                                      style: textTheme.bodySmall,
+                                    child: CachedNetworkImage(
+                                      imageUrl: articleList[index].urlToImage,
+                                      placeholder: (context, url) => SizedBox(
+                                        height: 200,
+                                        width: 200,
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          SizedBox(
+                                            height: 200,
+                                            width: 200,
+                                            child: Icon(Icons.error),
+                                          ),
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  Text(
+                                    articleList[index].title,
+                                    style: textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        articleList[index].sourceName,
+                                        style: textTheme.bodySmall,
+                                      ),
+                                      Text(
+                                        articleList[index].publishedAt,
+                                        style: textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -124,6 +142,30 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
           ],
         );
       },
+    );
+  }
+
+  void _showBottomSheet(BuildContext context, ArticleModel article) async {
+    await showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      shape: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        gapPadding: 20,
+      ),
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.only(bottom: 10.0),
+        child: SafeArea(
+          child: FractionallySizedBox(
+            widthFactor: 0.98,
+            heightFactor: 0.9,
+            child: Custombottomsheet(
+              imageSrc: article.urlToImage,
+              description: article.content,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

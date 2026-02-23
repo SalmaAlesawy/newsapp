@@ -29,19 +29,19 @@ abstract class ThemeManager {
           headlineMedium:TextStyle(
             fontSize: 30,
             fontFamily: "inter",
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w500,
               color: ColorPalette.white
           ),
           titleLarge:TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             fontFamily: "inter",
             color: ColorPalette.white
           ),
           titleMedium:TextStyle(
             fontSize: 16,
             fontFamily: "inter",
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color:ColorPalette.black
           ),
           titleSmall:TextStyle(
