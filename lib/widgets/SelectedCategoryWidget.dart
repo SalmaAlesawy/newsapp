@@ -160,6 +160,8 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
             widthFactor: 0.98,
             heightFactor: 0.9,
             child: Custombottomsheet(
+              url: Uri.parse(article.url),
+
               imageSrc: article.urlToImage,
               description: article.content,
             ),
@@ -168,4 +170,5 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
       ),
     );
   }
+
 }

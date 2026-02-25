@@ -1,16 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:newsapp/core/themes/ColorPalette.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class Custombottomsheet extends StatelessWidget {
+class Custombottomsheet extends StatefulWidget {
   final String imageSrc;
   final String description;
+  final Uri url;
   const Custombottomsheet({
     super.key,
     required this.imageSrc,
-    required this.description,
+    required this.description, required this.url,
   });
 
+  @override
+  State<Custombottomsheet> createState() => _CustombottomsheetState();
+}
+
+class _CustombottomsheetState extends State<Custombottomsheet> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -28,7 +35,7 @@ class Custombottomsheet extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadiusGeometry.circular(16),
               child: CachedNetworkImage(
-                imageUrl: imageSrc,
+                imageUrl: widget.imageSrc,
                 placeholder: (context, url) => CircularProgressIndicator(),
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
@@ -36,14 +43,16 @@ class Custombottomsheet extends StatelessWidget {
             SizedBox(height: 20),
             Expanded(
               child: Text(
-                description,
+                widget.description,
                 style: textTheme.titleSmall?.copyWith(
                   color: ColorPalette.white,
                 ),
               ),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: (){
+                _launcherUrl(widget.url);
+              },
               style: ButtonStyle(
                 textStyle: WidgetStatePropertyAll(textTheme.titleMedium),
                 foregroundColor: WidgetStatePropertyAll(ColorPalette.black),
@@ -66,5 +75,10 @@ class Custombottomsheet extends StatelessWidget {
         ),
       ),
     );
+  }
+  Future<void>_launcherUrl(Uri url)async{
+    if(!await launchUrl(url)){
+      throw Exception("Could not launch ${url}");
+    }
   }
 }

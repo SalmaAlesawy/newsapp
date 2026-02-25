@@ -6,7 +6,7 @@ class ArticleModel {
   final String publishedAt;
   final String content;
   final String? author;
-  final String sourceId;
+  final String? sourceId;
   final String sourceName;
 
   ArticleModel({

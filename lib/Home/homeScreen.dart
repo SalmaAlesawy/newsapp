@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/core/themes/ColorPalette.dart';
+import 'package:newsapp/models/ArticleModel.dart';
 import 'package:newsapp/models/Category_Data_Model.dart';
 import 'package:newsapp/widgets/SelectedCategoryWidget.dart';
 
+import '../Network Handler/Network_Handler.dart';
 import '../core/gen/assets.gen.dart';
 import '../widgets/CategoryCardWidget.dart';
 
@@ -14,6 +16,7 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+   bool isSearch=false;
   List<CategoryDataModel> categoryList = [
     CategoryDataModel(
       image: Assets.images.generalDark.keyName,
@@ -60,16 +63,77 @@ class _HomescreenState extends State<Homescreen> {
   ];
   CategoryDataModel? selectedCategory;
  late final CategoryDataModel categoryDataModel;
+ late final ArticleModel articleModel;
+ ArticleModel? selectedArticle;
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
+        appBar:isSearch==true?AppBar(
+          title: SearchAnchor(builder: (BuildContext context,SearchController controller){
+            return SearchBar(
+              onTap: controller.openView,
+              onChanged: (_)=>controller.openView(),
+              hintText: "Search",
+              controller: controller,
+              leading: IconButton(onPressed: (){}, icon: Assets.icons.searchIcn.svg()),
+              trailing: <Widget>[
+                Tooltip(
+                  message: "Close search",
+                  child: IconButton(onPressed: (){
+                    setState(() {
+                      isSearch=false;
+                    });
+                  }, icon: Icon(Icons.close)),
+                )
+              ]
+            );
+          }, suggestionsBuilder: (BuildContext context,SearchController controller){
+            if(controller.text.trim().isEmpty){
+              return [
+                Text("Start typing to search")
+              ];
+            }
+            return [
+              FutureBuilder(future: NetworkHandler.searchArticles(controller.text), builder: (context,snapshot){
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return Text("waiting...");
+
+                }
+                if (snapshot.hasError){
+                  print("SomeThing went wrong${snapshot.error}");
+                  return Text("SomeThing went wrong${snapshot.error}");
+                }
+                if (!snapshot.hasData|| snapshot.data==null||snapshot.data!.isEmpty){
+                  return Text("No matching articles");
+                }
+                final result =snapshot.data!;
+                return Column(
+                  children: result.map((item) {
+                    return ListTile(
+                      title: Text(item.title),
+                      onTap: () {
+                        controller.text = item.title;
+                        selectedArticle=item;
+                        controller.closeView(item.title);
+                      },
+                    );
+                  }).toList(),
+                );
+              })
+            ];
+          })
+        ): AppBar(
           title: Text(selectedCategory?.title ?? "Home"),
           centerTitle: true,
           actions: [
-            IconButton(onPressed: () {}, icon: Assets.icons.searchIcn.svg()),
+            IconButton(onPressed: () {
+              setState(() {
+                isSearch=true;
+              });
+
+            }, icon: Assets.icons.searchIcn.svg()),
           ],
         ),
         drawer: Drawer(
@@ -206,8 +270,8 @@ class _HomescreenState extends State<Homescreen> {
                     ),
                   ],
                 ),
-              )
-            :Selectedcategorywidget(categoryDataModel: selectedCategory!,)
+              ):
+            Selectedcategorywidget(categoryDataModel: selectedCategory!,)
       ),
     );
   }
