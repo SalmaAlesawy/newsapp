@@ -1,13 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:newsapp/models/ArticleModel.dart';
 import 'package:newsapp/models/Category_Data_Model.dart';
 import 'package:newsapp/models/sourceDataModel.dart';
+import 'package:newsapp/widgets/CustomListView.dart';
 
 import '../Network Handler/Network_Handler.dart';
 import '../core/themes/ColorPalette.dart';
-import 'CustomBottomSheet.dart';
-
 class Selectedcategorywidget extends StatefulWidget {
   const Selectedcategorywidget({super.key, required this.categoryDataModel});
   final CategoryDataModel categoryDataModel;
@@ -22,8 +20,18 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return FutureBuilder(
+
       future: NetworkHandler.getAllSources(widget.categoryDataModel.id),
       builder: (context, snapshot) {
+        if(snapshot.connectionState==ConnectionState.waiting){
+          return CircularProgressIndicator();
+        }
+        if(snapshot.hasError){
+          return Text("Has Error ${snapshot.error}");
+        }
+        if(!snapshot.hasData||snapshot.data!.isEmpty){
+          return Text("No sources Found");
+        }
         List<SourceData> sourceList = snapshot.data ?? [];
         return Column(
           children: [
@@ -57,6 +65,7 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
                   sourceList[selectedIndex].id,
                 ),
                 builder: (context, snapshot) {
+                  print("articels id${sourceList[selectedIndex].id}");
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   }
@@ -65,78 +74,7 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
                   }
                   List<ArticleModel> articleList = snapshot.data ?? [];
 
-                  return Expanded(
-                    child: ListView.separated(
-                      itemBuilder: (context, index) {
-                        print(" image: ${articleList[index].urlToImage}");
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              _showBottomSheet(context, articleList[index]);
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.all(8),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadiusGeometry.circular(16),
-                              border: Border.all(color: ColorPalette.black),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadiusGeometry.circular(
-                                      12,
-                                    ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: articleList[index].urlToImage,
-                                      placeholder: (context, url) => SizedBox(
-                                        height: 200,
-                                        width: 200,
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          SizedBox(
-                                            height: 200,
-                                            width: 200,
-                                            child: Icon(Icons.error),
-                                          ),
-                                    ),
-                                  ),
-                                  Text(
-                                    articleList[index].title,
-                                    style: textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        articleList[index].sourceName,
-                                        style: textTheme.bodySmall,
-                                      ),
-                                      Text(
-                                        articleList[index].publishedAt,
-                                        style: textTheme.bodySmall,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 5);
-                      },
-                      itemCount: articleList.length,
-                    ),
-                  );
+                  return Customlistview(articleList: articleList);
                 },
               ),
           ],
@@ -144,31 +82,4 @@ class _SelectedcategorywidgetState extends State<Selectedcategorywidget> {
       },
     );
   }
-
-  void _showBottomSheet(BuildContext context, ArticleModel article) async {
-    await showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      shape: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        gapPadding: 20,
-      ),
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-        child: SafeArea(
-          child: FractionallySizedBox(
-            widthFactor: 0.98,
-            heightFactor: 0.9,
-            child: Custombottomsheet(
-              url: Uri.parse(article.url),
-
-              imageSrc: article.urlToImage,
-              description: article.content,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
 }

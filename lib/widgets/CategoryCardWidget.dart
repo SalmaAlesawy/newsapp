@@ -4,6 +4,7 @@ import 'package:newsapp/models/Category_Data_Model.dart';
 import '../core/gen/assets.gen.dart';
 import '../core/themes/ColorPalette.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
+
 class Categorycardwidget extends StatefulWidget {
   final CategoryDataModel categoryDataModel;
   final bool isLeft;
@@ -11,7 +12,8 @@ class Categorycardwidget extends StatefulWidget {
   const Categorycardwidget({
     super.key,
     required this.categoryDataModel,
-    required this.isLeft, required this.onTap,
+    required this.isLeft,
+    required this.onTap,
   });
 
   @override
@@ -36,7 +38,9 @@ class _CategorycardwidgetState extends State<Categorycardwidget> {
           ),
         ),
         Align(
-          alignment: widget.isLeft==true?Alignment.centerRight:Alignment.centerLeft,
+          alignment: widget.isLeft == true
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -47,7 +51,7 @@ class _CategorycardwidgetState extends State<Categorycardwidget> {
                   style: textTheme.headlineMedium,
                 ),
                 Bounceable(
-                  onTap:() {
+                  onTap: () {
                     widget.onTap(widget.categoryDataModel);
                   },
                   child: Container(
@@ -62,7 +66,10 @@ class _CategorycardwidgetState extends State<Categorycardwidget> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text("View All", style: textTheme.headlineSmall),
+                          child: Text(
+                            "View All",
+                            style: textTheme.headlineSmall,
+                          ),
                         ),
                         CircleAvatar(
                           radius: 27,
